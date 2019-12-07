@@ -39,6 +39,8 @@ class Ball(pygame.sprite.Sprite):
     def move(self):
         self.x += self.mSpeed[0]
         self.y += self.mSpeed[1]
+        if frames % 20 == 0:
+            self.trail.append((int(self.x + self.radius), int(self.y + self.radius)))
 
     def constrainedMove(self, position, radius, print_flag=False):
         self.x += self.mSpeed[0]
@@ -140,46 +142,29 @@ class Ball(pygame.sprite.Sprite):
     def draw (self, surface):
         surface.blit(self.image, (self.x, self.y))
 
-ball = Ball((width/4, width/4), 15, 1, (0, 255, 0), (.075, -.15))
+ball = Ball((width/4, width/4), 15, 2*10**11, (0, 255, 0), (.075, -.15))
 
-earth = Ball((width - width/4, height - height/4), 15, 1, (0, 0, 255), (-.075, .15))
+ball2 = Ball((width - width/4, height - height/4), 15, 2*10**11, (0, 0, 255), (-.075, .15))
 
-mars = Ball((width/2, height/2), 15, 1, (255, 0, 0))
+ball3 = Ball((width/2, height/2), 15, 2*10**11, (255, 0, 0))
 
 while 1:
     for event in pygame.event.get():
         if event.type == pygame.QUIT: sys.exit()
     screen.fill((0, 0, 0))
 
-    #ball.checkCollision(size)
-    ball.applyGravity((earth.x, earth.y), 2*10**11, 1)
-    ball.applyGravity((mars.x, mars.y), 2*10**11, 1)
+    entities = [ball, ball2, ball3]
 
-    earth.applyGravity((ball.x, ball.y), 2*10**11, 1)
-    earth.applyGravity((mars.x, mars.y), 2*10**11, 1)
-
-    mars.applyGravity((earth.x, earth.y), 0, 1)
-    mars.applyGravity((ball.x, ball.y), 0, 1)
-
-    ball.constrainedMove((earth.x, earth.y), 1)
-    ball.constrainedMove((mars.x, mars.y), 1)
+    for entity in entities:
+        for body in entities:
+            if body != entity:
+                print('sumting')
+                entity.applyGravity((body.x, body.y), body.mass, 1)
+                entity.move()
+                entity.drawTrail(screen, (255, 255, 255))
+            else:
+                entity.draw(screen)
     
-    earth.constrainedMove((mars.x, mars.y), 1)
-    earth.constrainedMove((ball.x, ball.y), 1)
-
-    mars.constrainedMove((ball.x, ball.y), 1)
-    mars.constrainedMove((earth.x, earth.y), 1)
-
-    ball.draw(screen)
-    earth.draw(screen)
-    mars.draw(screen)
-
-    ball.drawTrail(screen, (255, 255, 255))
-    earth.drawTrail(screen, (255, 255, 255))
-    mars.drawTrail(screen, (255, 255, 255))
-
-
-
     pygame.display.update()
 
     frames += 1
